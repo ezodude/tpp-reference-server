@@ -48,5 +48,38 @@ const postAccountRequests = async (resourceServerPath, accessToken,
   }
 };
 
+const deleteAccountRequest = async (
+  resourceServerPath,
+  accessToken,
+  fapiFinancialId,
+  accountRequestId,
+  fapiInteractionId,
+) => {
+  try {
+    const accountRequestDeleteUri = `${resourceServerPath}/open-banking/v1.1/account-requests/${accountRequestId}`;
+    log(`DELETE to ${accountRequestDeleteUri}`);
+    const response = await setupMutualTLS(request.del(accountRequestDeleteUri))
+      .set('authorization', `Bearer ${accessToken}`)
+      .set('content-type', 'application/json; charset=utf-8')
+      .set('accept', 'application/json; charset=utf-8')
+      .set('x-fapi-financial-id', fapiFinancialId)
+      .set('x-fapi-interaction-id', fapiInteractionId)
+      .send();
+    debug(`${response.status} response for ${accountRequestDeleteUri}`);
+    if (response.status.toString() === '204') {
+      return response.headers;
+    }
+    const error = new Error('Bad Request');
+    error.status = 400;
+    throw error;
+  } catch (err) {
+    const error = new Error(err.message);
+    error.status = err.response ? err.response.status : 400;
+    throw error;
+  }
+};
+
+
 exports.buildAccountRequestData = buildAccountRequestData;
 exports.postAccountRequests = postAccountRequests;
+exports.deleteAccountRequest = deleteAccountRequest;

@@ -1,6 +1,8 @@
 const assert = require('assert');
 
-const { setConsent, consent, filterConsented } = require('../../app/authorise');
+const {
+  setConsent, consent, consentAccessToken, consentAccountRequestId, filterConsented,
+} = require('../../app/authorise');
 const { AUTH_SERVER_USER_CONSENTS_COLLECTION } = require('../../app/authorise/consents');
 
 const { drop } = require('../../app/storage.js');
@@ -29,7 +31,7 @@ const consentPayload = {
   token: tokenPayload,
 };
 
-describe('setConsents', () => {
+describe('set and get Consents', () => {
   beforeEach(async () => {
     await drop(AUTH_SERVER_USER_CONSENTS_COLLECTION);
   });
@@ -38,11 +40,22 @@ describe('setConsents', () => {
     await drop(AUTH_SERVER_USER_CONSENTS_COLLECTION);
   });
 
-  it('stores payload and allows consent to be retrieved', async () => {
+  it('stores payload and allows consent to be retrieved by keys id', async () => {
     await setConsent(keys, consentPayload);
     const stored = await consent(keys);
     assert.equal(stored.id, `${username}:::${authorisationServerId}:::${scope}`);
-    assert.equal(stored.token.access_token, token);
+  });
+
+  it('stores payload and allows consent access_token to be retrieved', async () => {
+    await setConsent(keys, consentPayload);
+    const storedAccessToken = await consentAccessToken(keys);
+    assert.equal(storedAccessToken, token);
+  });
+
+  it('stores payload and allows consent accountRequestId to be retrieved', async () => {
+    await setConsent(keys, consentPayload);
+    const storedAccountRequestId = await consentAccountRequestId(keys);
+    assert.equal(storedAccountRequestId, accountRequestId);
   });
 });
 
