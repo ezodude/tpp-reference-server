@@ -1,4 +1,4 @@
-const { get, set } = require('../storage');
+const { get, set, remove } = require('../storage');
 const debug = require('debug')('debug');
 
 const AUTH_SERVER_USER_CONSENTS_COLLECTION = 'authorisationServerUserConsents';
@@ -22,6 +22,12 @@ const setConsent = async (keys, payload) => {
   const compositeKey = generateCompositeKey(keys);
   debug(`#setConsent compositeKey: [${compositeKey}]`);
   await set(AUTH_SERVER_USER_CONSENTS_COLLECTION, payload, compositeKey);
+};
+
+const removeAuthServerUserConsent = async (keys) => {
+  debug(`#removeAuthServerUserConsent keys: [${JSON.stringify(keys)}]`);
+  const compositeKey = generateCompositeKey(keys);
+  await remove(AUTH_SERVER_USER_CONSENTS_COLLECTION, compositeKey);
 };
 
 const consentPayload = async compositeKey =>
@@ -76,4 +82,5 @@ exports.consent = consent;
 exports.consentAccessToken = consentAccessToken;
 exports.filterConsented = filterConsented;
 exports.consentAccountRequestId = consentAccountRequestId;
+exports.removeAuthServerUserConsent = removeAuthServerUserConsent;
 exports.AUTH_SERVER_USER_CONSENTS_COLLECTION = AUTH_SERVER_USER_CONSENTS_COLLECTION;
